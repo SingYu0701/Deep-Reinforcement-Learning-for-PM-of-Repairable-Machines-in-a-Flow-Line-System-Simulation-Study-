@@ -39,17 +39,21 @@ This study proposes a reinforcement learning framework using Double Deep Q-Netwo
 The problem is modeled as a **Markov Decision Process (MDP)**:
 
 **State space:**  
- $s_t = [B_t, M_t, HI_t]$
+
+ $$s_t = [B_t, M_t, HI_t]$$
 
 - `B_t`: buffer level at time t  
 - `M_t`: remaining maintenance time (0 if idle)  
 - `HI_t`: machine health index (0–1)
 
 **Action space:**  
-$a_t ∈ [ do nothing, PM, CM ] $
+
+$$a_t ∈ [ do nothing, PM, CM ] $$
 
 **Reward function:**  
-$r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions)$
+
+ $$r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions)$$
+
 
 **Transition dynamics:**  
 - HI decreases during operation; failure occurs probabilistically depending on HI.  
@@ -68,7 +72,8 @@ $r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions
 
 ### 3.1 Data Collection
 Simulation is used to generate data:
-
+<div align="center">
+ 
 | Parameter | Value |
 |-----------|-------|
 | WIP arrival | Poisson(0.5), capped at 1 per step |
@@ -79,6 +84,7 @@ Simulation is used to generate data:
 | Training episodes | 300 |
 | Max steps per episode | 50 |
 
+</div>
 Simulation provides realistic stochastic behavior while remaining computationally feasible.
 
 ### 3.2 Analysis
