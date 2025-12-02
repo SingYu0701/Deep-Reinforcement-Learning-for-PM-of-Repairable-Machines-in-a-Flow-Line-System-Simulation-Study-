@@ -39,15 +39,18 @@ This study proposes a reinforcement learning framework using Double Deep Q-Netwo
 The problem is modeled as a **Markov Decision Process (MDP)**:
 
 **State space:**  
-$s_t = [B_t, M_t, HI_t]
+ $s_t = [B_t, M_t, HI_t]$
+
 - `B_t`: buffer level at time t  
 - `M_t`: remaining maintenance time (0 if idle)  
 - `HI_t`: machine health index (0–1)
 
 **Action space:**  
-$a_t ∈ { do nothing, PM, CM }
+$a_t ∈ [ do nothing, PM, CM ] $
+
 **Reward function:**  
-$r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions)
+$r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions)$
+
 **Transition dynamics:**  
 - HI decreases during operation; failure occurs probabilistically depending on HI.  
 - PM/CM restore HI and consume maintenance time.  
@@ -115,25 +118,25 @@ plt.title("Loss per Step")
 plt.xlabel("Training Steps")
 plt.ylabel("MSE Loss")
 
-plt.show()```
+plt.show()
+```
 
-3.3 Results and Managerial Implications
+### 3.3 Results and Managerial Implications
 
 The agent learns to perform PM before failures, avoiding costly CM and production loss.
 
 WIP buffer management is implicitly learned: avoid overproduction when buffer is full.
 
 Managerial insight: Reinforcement learning provides adaptive maintenance policies that balance cost and production continuity without explicit optimization models.
-4. Conclusion
+
+### 4. Conclusion
 
 DDQN-based reinforcement learning effectively solves production-maintenance scheduling under stochastic WIP arrivals. The trained agent maximizes cumulative reward by balancing production, maintenance, and WIP loss. This approach is flexible, data-driven, and can be extended to multi-machine or more complex production systems.
 
-5. References
+### 5. References
 
-Mnih, V., et al. (2015). Human-level control through deep reinforcement learning. Nature, 518(7540), 529–533.
+Hung, YH., Shen, HY. & Lee, CY. Deep reinforcement learning-based preventive maintenance for repairable machines with deterioration in a flow line system. Ann Oper Res (2024).https://doi.org/10.1007/s10479-024-06207-x
 
-Van Hasselt, H., Guez, A., & Silver, D. (2016). Deep Reinforcement Learning with Double Q-learning. AAAI.
+Jianyu Su, Jing Huang, Stephen Adams, Qing Chang, and Peter A. Beling. 2022. Deep multi-agent reinforcement learning for multi-level preventive maintenance in manufacturing systems▪. Expert Syst. Appl. 192, C (Apr 2022). https://doi.org/10.1016/j.eswa.2021.116323
 
-Sutton, R. S., & Barto, A. G. (2018). Reinforcement Learning: An Introduction. MIT Press.
-
-Python Libraries: numpy, pandas, torch, matplotlib, seaborn
+Liu, Y., Wang, W., Hu, Y., Hao, J., Chen, X., & Gao, Y. (2019). Multi-agent game abstraction via graph attention neural network. arXiv preprint arXiv:1911.10715. https://doi.org/10.48550/arXiv.1911.10715
