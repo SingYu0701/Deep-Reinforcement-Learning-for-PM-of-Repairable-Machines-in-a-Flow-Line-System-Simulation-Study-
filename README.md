@@ -39,15 +39,15 @@ This study proposes a reinforcement learning framework using Double Deep Q-Netwo
 The problem is modeled as a **Markov Decision Process (MDP)**:
 
 **State space:**  
-s_t = [B_t, M_t, HI_t]
+$s_t = [B_t, M_t, HI_t]
 - `B_t`: buffer level at time t  
 - `M_t`: remaining maintenance time (0 if idle)  
 - `HI_t`: machine health index (0–1)
 
 **Action space:**  
-a_t ∈ { do nothing, PM, CM }
+$a_t ∈ { do nothing, PM, CM }
 **Reward function:**  
-r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions)
+$r_t = - (production loss) - (WIP waste) - (maintenance cost) - (invalid actions)
 **Transition dynamics:**  
 - HI decreases during operation; failure occurs probabilistically depending on HI.  
 - PM/CM restore HI and consume maintenance time.  
@@ -115,7 +115,8 @@ plt.title("Loss per Step")
 plt.xlabel("Training Steps")
 plt.ylabel("MSE Loss")
 
-plt.show()
+plt.show()```
+
 3.3 Results and Managerial Implications
 
 The agent learns to perform PM before failures, avoiding costly CM and production loss.
