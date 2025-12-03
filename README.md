@@ -1,7 +1,7 @@
 # Deep-Reinforcement-Learning-for-PM-of-Repairable-Machines-in-a-Flow-Line-System-Simulation-Study
 Final report of Operations Research Applications, 2025 @ NCKU Institute of Manufacturing Information and Systems 
 
-Group C: C24106121, N46144056 and P76147051 
+Group C: **Jen-Chien, Tseng (C24106121)**, **Sing-Yu, Bao (N46144056)** and **Josue Fernandez (P76147051)**
 
 ![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue?logo=python)
 
