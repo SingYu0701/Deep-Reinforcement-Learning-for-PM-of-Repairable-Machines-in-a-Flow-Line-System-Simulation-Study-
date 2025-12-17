@@ -491,6 +491,7 @@ class MultiHeadQNetwork(nn.Module):
             q_values.append(head(features))
         return torch.stack(q_values, dim=1)
 
+
 class ReplayBuffer:
     """Experience replay buffer"""
     def __init__(self, capacity=5000):
@@ -511,13 +512,14 @@ class ReplayBuffer:
     def is_ready(self, batch_size):
         return len(self.buffer) >= batch_size
 
+
 class DoubleDQNAgent:
     """Double DQN Agent for maintenance scheduling"""
     def __init__(self, state_size, action_size, num_agents,
                  learning_rate=0.0004, discount_factor=0.95,
                  epsilon_max=1.0, epsilon_min=0.01, epsilon_decay_divisor=3,
                  buffer_capacity=5000, batch_size=128,
-                 target_update_frequency=10, train_frequency=5000,
+                 target_update_frequency=10, train_frequency=4,
                  lr_decay_factor=0.5, lr_decay_frequency=200):
 
         self.state_size = state_size
@@ -712,6 +714,7 @@ class DoubleDQNAgent:
     def get_learning_rate(self):
         return self.optimizer.param_groups[0]['lr']
 
+
 def train_maintenance_system(env, config, checkpoint_path):
     """
     Train the maintenance scheduling agent with Checkpointing and Resume capability.
@@ -750,16 +753,16 @@ def train_maintenance_system(env, config, checkpoint_path):
         start_episode = agent.episode_count
         print(f"Resuming training from episode {start_episode}...")
 
-        # Optional: Verify environment config matches
-        # (This prevents you from loading a model trained on a different environment)
-        # if loaded_env_config != config['env_params']:
-        #     print("WARNING: Loaded model environment parameters do not match current config!")
+        # Verify environment config matches
+        # This prevents the program from loading a model trained on a different environment)
+        if loaded_env_config != config['env_params']:
+            print("WARNING: Loaded model environment parameters do not match current config!")
 
-    # Buffer for "Professor Sample" (Last 10 transitions)
+    # Buffer for sample (Last 10 transitions)
     recent_transitions = deque(maxlen=10)
 
     # === TRAINING LOOP ===
-    # Notice we start from 'start_episode' instead of 0
+    # We start from 'start_episode' instead of 0 in case of loaded model
     for episode in range(start_episode, config['episodes']):
         state = env.reset()
         total_reward = 0
@@ -816,6 +819,7 @@ def train_maintenance_system(env, config, checkpoint_path):
             print("-" * 70)
 
     return agent, rewards_per_episode, losses, epsilon_history, lr_history
+
 
 def visualize_training(rewards, losses, epsilon, lr):
     """Visualize training results"""
