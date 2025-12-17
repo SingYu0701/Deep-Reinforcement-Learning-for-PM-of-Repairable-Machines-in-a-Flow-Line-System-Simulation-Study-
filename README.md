@@ -2,6 +2,7 @@
 Final report of Operations Research Applications, Dec 2025 @ NCKU Institute of Manufacturing Information and Systems 
 
 
+
 <div align="center">
  
 ### Group C
@@ -10,8 +11,8 @@ Final report of Operations Research Applications, Dec 2025 @ NCKU Institute of M
 | **Jen-Chien, Tseng** | **C24106121** |
 | **Sing-Yu, Bao**     | **N46144056** |
 | **Josue Fernandez**  | **P76147051** |
-
 </div>
+
 ![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue?logo=python)
 
 # 1. Title
