@@ -180,10 +180,10 @@ For each scenario, we track:
 **Comparative Results**
 
 In Scenario A, the DDQN converges quickly and learns a PM policy closely resembling an age-threshold rule, indicating limited marginal benefit of complex decision-making.
-<img width="1336" height="855" alt="圖片" src="https://github.com/user-attachments/assets/4d861efe-b90e-4c29-be17-e8d6ebfa7d81" />
+<img width="1503" height="1018" alt="圖片" src="https://github.com/user-attachments/assets/bb0db56e-0940-41b2-a6cc-e5e78208ad41" />
 
 In Scenario B, the learned policy deviates significantly from pure age-based behavior. PM actions are influenced by buffer occupancy, downstream congestion, and failure risk propagation.
-<img width="1311" height="855" alt="圖片" src="https://github.com/user-attachments/assets/c0295df6-af05-47b0-8ca8-77ad8cd90355" />
+<img width="1476" height="1018" alt="圖片" src="https://github.com/user-attachments/assets/57677447-119e-4cbd-9705-e925f1ab8a40" />
 
 Corrective maintenance frequency is substantially reduced in Scenario B compared to reactive maintenance, despite similar average PM effort.
 
@@ -197,7 +197,7 @@ As system complexity increases, ignoring buffer interactions leads to inefficien
 
 RL-based PM policies are most valuable in environments where maintenance decisions have system-wide ripple effects.
 
-<img width="984" height="583" alt="圖片" src="https://github.com/user-attachments/assets/043311d4-1642-40de-bfa8-bb994906c170" />
+<img width="984" height="583" alt="圖片" src="https://github.com/user-attachments/assets/9855ae3a-6dcf-4831-b2cd-00d170466fc1" />
 
 5. Conclusion
 
