@@ -212,7 +212,7 @@ class FlowLineEnvironment:
         max_production = max(self.production_per_stage)
 
         # Normalize machine ages (0 to 1)
-        normalized_ages = [age / self.max_machine_age for age in self.machine_ages]
+        normalized_ages = [age / self.max_machine_age for age in self.machine_ages] # type:ignore
 
         # Normalize buffer levels (0 to 1)
         normalized_buffers = [level / self.buffer_capacity for level in self.buffer_levels]
@@ -442,7 +442,7 @@ class FlowLineEnvironment:
             if (self.maintenance_timers[machine_idx] == 0
                 and not self.machine_failed[machine_idx]
                 and self.wips_in_machine[machine_idx] > 0):
-                self.machine_ages[machine_idx] = min(self.machine_ages[machine_idx] + 1, self.max_machine_age)
+                self.machine_ages[machine_idx] = min(self.machine_ages[machine_idx] + 1, self.max_machine_age)  # type:ignore
 
         self.current_step += 1
 
@@ -901,10 +901,40 @@ def visualize_training(rewards, losses, epsilon, lr, save_as):
     plt.savefig(save_as, dpi=300)
 
 
+def load_trained_agent(env, checkpoint_path, config):
+    """
+    Creates an agent instance and loads weights from a file.
+    """
+    # 1. Initialize a fresh agent (structure must match training)
+    agent = DoubleDQNAgent(
+        state_size=env.state_size,
+        action_size=env.action_size,
+        num_agents=env.total_machines,
+        # Hyperparams don't matter for evaluation, but we need valid inputs
+        learning_rate=config["learning_rate"],
+        epsilon_decay_divisor=config["epsilon_decay_divisor"],
+        buffer_capacity=config["buffer_capacity"],
+        train_frequency=config["train_frequency"],
+        lr_decay_factor=config["lr_decay_factor"],
+        lr_decay_frequency=config["lr_decay_frequency"]
+    )
+
+    # 2. Load the weights
+    # We use the method in the agent class
+    print(f"Loading model from: {checkpoint_path}")
+    agent.load_checkpoint(checkpoint_path)
+
+    # 3. Set to Evaluation Mode (No exploration)
+    agent.epsilon = 0.0
+
+    return agent
+
+
 def policy_run_to_failure(state, env):
     """Never perform PM. Only CM happens upon failure (handled by env)."""
     # Always return action 0 (Do Nothing) for all machines
     return [0] * env.total_machines
+
 
 def policy_age_dependent(state, env, threshold_age):
     """Perform PM if a machine's age exceeds a fixed threshold."""
@@ -920,6 +950,7 @@ def policy_age_dependent(state, env, threshold_age):
         else:
             actions.append(0) # Do Nothing
     return actions
+
 
 def evaluate_policies(env, agent, policies, num_episodes=20):
     """
@@ -1003,200 +1034,179 @@ def compare_policies(config, eval_policies, eval_episodes):
     print(df_results.describe().loc[['mean', 'std', 'min', 'max']].T)
 
 
+def main():
+    global save_dir
 
-print("=" * 70)
-print("Flow-Line Maintenance Scheduling with Double DQN")
-print("=" * 70)
+    print("=" * 70)
+    print("Flow-Line Maintenance Scheduling with Double DQN")
+    print("=" * 70)
 
 
-# === CONFIGURATION FOR SIMPLE RUN ===
-# Change 'ID' to train a separate model (e.g., "Experiment_A", "Experiment_B")
-simple_run_config = {
-    "ID": "Experiment_Simple_1_Machine",
+    # === CONFIGURATION FOR SIMPLE RUN ===
+    # Change 'ID' to train a separate model (e.g., "Experiment_A", "Experiment_B")
+    simple_run_config = {
+        "ID": "Experiment_Simple_1_Machine",
 
-    # Training Hyperparameters
-    "episodes": 800,
-    "episode_length": 1_000,
-    "learning_rate": 0.0004,
-    "lr_decay_factor": 0.5,
-    "lr_decay_frequency": 200,
-    "epsilon_decay_divisor": 3,
-    "buffer_capacity": 5000,
-    "batch_size": 128,
-    "train_frequency": 5000,
+        # Training Hyperparameters
+        "episodes": 800,
+        "episode_length": 1_000,
+        "learning_rate": 0.0004,
+        "lr_decay_factor": 0.5,
+        "lr_decay_frequency": 200,
+        "epsilon_decay_divisor": 3,
+        "buffer_capacity": 5000,
+        "batch_size": 128,
+        "train_frequency": 4,
 
-    # Environment Parameters (Moved here so they are saved with the model)
-    "env_params": {
-        "machines_per_stage": [1],
-        "production_per_stage": [1],
-        "buffer_capacity": 6,
-        "buffer_cycle": 7,
-        "arrival_lambda": 0.5,
-        "max_machine_age": None,  # Calculates automatically
-        "failure_distribution": "linear",
-        "linear_failure_rate": 0.01,
-        "pm_age_reduction": 14,   # at age n, percentage of failure is n%
-        "pm_duration": 2,
-        "cm_duration": 4,
-        "pm_cost": 2,
-        "cm_cost": 4,
-        "blockage_cost": 2,
-        "starvation_cost": 2
+        # Environment Parameters (Moved here so they are saved with the model)
+        "env_params": {
+            "machines_per_stage": [1],
+            "production_per_stage": [1],
+            "buffer_capacity": 6,
+            "buffer_cycle": 7,
+            "arrival_lambda": 0.5,
+            "max_machine_age": None,  # Calculates automatically
+            "failure_distribution": "linear",
+            "linear_failure_rate": 0.01,
+            "pm_age_reduction": 14,   # at age n, percentage of failure is n%
+            "pm_duration": 2,
+            "cm_duration": 4,
+            "pm_cost": 2,
+            "cm_cost": 4,
+            "blockage_cost": 2,
+            "starvation_cost": 2,
+            "wip_loss_cost": 2
+        }
     }
-}
 
 
-# 1. Setup Paths
-# This creates a unique file for every ID: "ddqn_Experiment_A.pth", "ddqn_Experiment_B.pth"
-save_dir = '/content/drive/My Drive/Maintenance_RL_Models'
-os.makedirs(save_dir, exist_ok=True)
+    # 1. Setup Paths
+    # This creates a unique file for every ID: "ddqn_Experiment_A.pth", "ddqn_Experiment_B.pth"
+    os.makedirs(save_dir, exist_ok=True)
 
-filename = f"ddqn_{simple_run_config['ID']}.pth"
-checkpoint_path = os.path.join(save_dir, filename)
+    filename = f"ddqn_{simple_run_config['ID']}.pth"
+    checkpoint_path = os.path.join(save_dir, filename)
 
-print(f"Run ID: {simple_run_config['ID']}")
-print(f"Checkpoint File: {checkpoint_path}")
+    print(f"Run ID: {simple_run_config['ID']}")
+    print(f"Checkpoint File: {checkpoint_path}")
 
-# 2. Create Environment
-# We unpack the dictionary using ** to pass arguments cleanly
-env = FlowLineEnvironment(
-    **simple_run_config['env_params'],
-    # Can add the static parameters that don't change often
-)
-
-# 3. Start Training
-agent, rewards, losses, epsilon, lr = train_maintenance_system(
-    env=env,
-    config=simple_run_config,
-    checkpoint_path=checkpoint_path
-)
-
-# Visualize results of the experiment
-visualize_training(rewards, losses, epsilon, lr)
-
-figure_filename = f"ddqn_{simple_run_config['ID']}.png"
-plt.savefig(figure_filename, dpi=300)
-
-print("=" * 70)
-print("Flow-Line Maintenance Scheduling with Double DQN")
-print("=" * 70)
-
-# === CONFIGURATION FOR COMPLEX RUN ===
-# Change 'ID' to train a separate model (e.g., "Experiment_A", "Experiment_B")
-complex_run_config = {
-    "ID": "Experiment_Complex",
-
-    # Training Hyperparameters
-    "episodes": 800,
-    "episode_length": 1_000,
-    "learning_rate": 0.0004,
-    "lr_decay_factor": 0.5,
-    "lr_decay_frequency": 200,
-    "epsilon_decay_divisor": 3,
-    "buffer_capacity": 5000,
-    "batch_size": 128,
-    "train_frequency": 5000,
-
-    # Environment Parameters (Moved here so they are saved with the model)
-    "env_params": {
-        "machines_per_stage": [2, 2],
-        "production_per_stage": [100, 100],
-        "buffer_capacity": 1400,
-        "buffer_cycle": 7,
-        "arrival_lambda": 1_200,
-        "max_machine_age": None,  # Calculates automatically
-        "failure_distribution": "weibull",
-        "weibull_k":  2,
-        "weibull_lambda": 30,
-        "pm_age_reduction": 14,
-        "pm_duration": 2,
-        "cm_duration": 5,
-        "pm_cost": 6_000,
-        "cm_cost": 8_000,
-        "blockage_cost": 10,
-        "starvation_cost": 5
-    }
-}
-
-
-# 1. Setup Paths
-# This creates a unique file for every ID: "ddqn_Experiment_A.pth", "ddqn_Experiment_B.pth"
-save_dir = '/content/drive/My Drive/Maintenance_RL_Models'
-os.makedirs(save_dir, exist_ok=True)
-
-filename = f"ddqn_{complex_run_config['ID']}.pth"
-checkpoint_path = os.path.join(save_dir, filename)
-
-print(f"Run ID: {complex_run_config['ID']}")
-print(f"Checkpoint File: {checkpoint_path}")
-
-# 2. Create Environment
-# We unpack the dictionary using ** to pass arguments cleanly
-env = FlowLineEnvironment(
-    **complex_run_config['env_params'],
-    # Can add the static parameters that don't change often
-)
-
-# 3. Start Training
-agent, rewards, losses, epsilon, lr = train_maintenance_system(
-    env=env,
-    config=complex_run_config,
-    checkpoint_path=checkpoint_path
-)
-
-# Visualize results of the experiment
-visualize_training(rewards, losses, epsilon, lr)
-
-def load_trained_agent(env, checkpoint_path, config):
-    """
-    Creates an agent instance and loads weights from a file.
-    """
-    # 1. Initialize a fresh agent (structure must match training)
-    agent = DoubleDQNAgent(
-        state_size=env.state_size,
-        action_size=env.action_size,
-        num_agents=env.total_machines,
-        # Hyperparams don't matter for evaluation, but we need valid inputs
-        learning_rate=config["learning_rate"],
-        epsilon_decay_divisor=config["epsilon_decay_divisor"],
-        buffer_capacity=config["buffer_capacity"],
-        train_frequency=config["train_frequency"],
-        lr_decay_factor=config["lr_decay_factor"],
-        lr_decay_frequency=config["lr_decay_frequency"]
+    # 2. Create Environment
+    # We unpack the dictionary using ** to pass arguments cleanly
+    env = FlowLineEnvironment(
+        **simple_run_config['env_params'],
+        # Can add the static parameters that don't change often
     )
 
-    # 2. Load the weights
-    # We use the method in the agent class
-    print(f"Loading model from: {checkpoint_path}")
-    agent.load_checkpoint(checkpoint_path)
+    # 3. Start Training
+    simple_agent, simple_rewards, simple_losses, simple_epsilon, simple_lr = train_maintenance_system(
+        env=env,
+        config=simple_run_config,
+        checkpoint_path=checkpoint_path
+    )
 
-    # 3. Set to Evaluation Mode (No exploration)
-    agent.epsilon = 0.0
+    # Visualize results of the experiment
+    figure_filename = os.path.join(save_dir, f"ddqn_{simple_run_config['ID']}.png")
+    visualize_training(simple_rewards, simple_losses, simple_epsilon, simple_lr, figure_filename)
 
-    return agent
+    # Define the specific thresholds for weekly, biweekly, monthly
+    # Assuming 1 timestep = 1 day (adjust based on your simulation's time scale)
+    # 'weekly' -> PM every 7 steps
+    # 'biweekly' -> PM every 14 steps
+    # 'monthly' -> PM every 30 steps
+    simple_policies = {
+        "Double DQN": None, # Placeholder, uses the trained agent
+        "Weekly (Age >= 7)": lambda s, e: policy_age_dependent(s, e, threshold_age=7),
+        "Biweekly (Age >= 14)": lambda s, e: policy_age_dependent(s, e, threshold_age=14),
+        "Monthly (Age >= 30)": lambda s, e: policy_age_dependent(s, e, threshold_age=30),
+        "Run-to-Fail": policy_run_to_failure
+    }
+
+    compare_policies(simple_run_config, simple_policies, 30)
 
 
-# Define the specific thresholds for weekly, biweekly, monthly
-# Assuming 1 timestep = 1 day (adjust based on your simulation's time scale)
-# 'weekly' -> PM every 7 steps
-# 'biweekly' -> PM every 14 steps
-# 'monthly' -> PM every 30 steps
-simple_policies = {
-    "Double DQN": None, # Placeholder, uses the trained agent
-    "Weekly (Age >= 7)": lambda s, e: policy_age_dependent(s, e, threshold_age=7),
-    "Biweekly (Age >= 14)": lambda s, e: policy_age_dependent(s, e, threshold_age=14),
-    "Monthly (Age >= 30)": lambda s, e: policy_age_dependent(s, e, threshold_age=30),
-    "Run-to-Fail": policy_run_to_failure
-}
+    print("\n" * 5)
+    print("=" * 70)
+    print("Flow-Line Maintenance Scheduling with Double DQN")
+    print("=" * 70)
 
-compare_policies(simple_run_config, simple_policies, 30)
+    # === CONFIGURATION FOR COMPLEX RUN ===
+    # Change 'ID' to train a separate model (e.g., "Experiment_A", "Experiment_B")
+    complex_run_config = {
+        "ID": "Experiment_Complex",
 
-complex_policies = {
-    "Double DQN": None, # Placeholder, uses the trained agent
-    "Weekly (Age >= 7)": lambda s, e: policy_age_dependent(s, e, threshold_age=7),
-    "Biweekly (Age >= 14)": lambda s, e: policy_age_dependent(s, e, threshold_age=14),
-    "Monthly (Age >= 30)": lambda s, e: policy_age_dependent(s, e, threshold_age=30),
-    "Run-to-Fail": policy_run_to_failure
-}
+        # Training Hyperparameters
+        "episodes": 800,
+        "episode_length": 1_000,
+        "learning_rate": 0.0004,
+        "lr_decay_factor": 0.5,
+        "lr_decay_frequency": 200,
+        "epsilon_decay_divisor": 3.5,
+        "buffer_capacity": 5_000,
+        "batch_size": 128,
+        "train_frequency": 4,
 
-compare_policies(complex_run_config, complex_policies, 30)
+        # Environment Parameters (Moved here so they are saved with the model)
+        "env_params": {
+            "machines_per_stage": [2, 2],
+            "production_per_stage": [100, 100],
+            "buffer_capacity": 1_400,
+            "buffer_cycle": 7,
+            "arrival_lambda": 1_200,
+            "max_machine_age": None,  # Calculates automatically
+            "failure_distribution": "weibull",
+            "weibull_k":  2,
+            "weibull_lambda": 30,
+            "pm_age_reduction": 14,
+            "pm_duration": 2,
+            "cm_duration": 5,
+            "pm_cost": 5_000,
+            "cm_cost": 8_000,
+            "blockage_cost": 10,
+            "starvation_cost": 10,
+            "wip_loss_cost": 10
+        }
+    }
+
+
+    # 1. Setup Paths
+    # This creates a unique file for every ID: "ddqn_Experiment_A.pth", "ddqn_Experiment_B.pth"
+    os.makedirs(save_dir, exist_ok=True)
+
+    filename = f"ddqn_{complex_run_config['ID']}.pth"
+    checkpoint_path = os.path.join(save_dir, filename)
+
+    print(f"Run ID: {complex_run_config['ID']}")
+    print(f"Checkpoint File: {checkpoint_path}")
+
+    # 2. Create Environment
+    # We unpack the dictionary using ** to pass arguments cleanly
+    env = FlowLineEnvironment(
+        **complex_run_config['env_params'],
+        # Can add the static parameters that don't change often
+    )
+
+    # 3. Start Training
+    complex_agent, complex_rewards, complex_losses, complex_epsilon, complex_lr = train_maintenance_system(
+        env=env,
+        config=complex_run_config,
+        checkpoint_path=checkpoint_path
+    )
+
+    # Visualize results of the experiment
+    figure_filename = f"ddqn_{complex_run_config['ID']}.png"
+    visualize_training(complex_rewards, complex_losses, complex_epsilon, complex_lr, figure_filename)
+
+    complex_policies = {
+        "Double DQN": None, # Placeholder, uses the trained agent
+        "Weekly (Age >= 7)": lambda s, e: policy_age_dependent(s, e, threshold_age=7),
+        "Biweekly (Age >= 14)": lambda s, e: policy_age_dependent(s, e, threshold_age=14),
+        "Monthly (Age >= 30)": lambda s, e: policy_age_dependent(s, e, threshold_age=30),
+        "Run-to-Fail": policy_run_to_failure
+    }
+
+    compare_policies(complex_run_config, complex_policies, 30)
+
+
+# Train and visualize if file is run as a script
+if __name__ == "__main__":
+    main()
