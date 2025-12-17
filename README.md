@@ -1,19 +1,23 @@
 # Deep Reinforcement Learning for Preventive Maintenance of Repairable Machines in a Flow Line System - A Simulation Study
 Final report of Operations Research Applications, Dec 2025 @ NCKU Institute of Manufacturing Information and Systems 
 
-Group C
+
+
+<div align="center">
+ 
+### Group C
 | Name                 | Student ID    |
 |----------------------|---------------|
 | **Jen-Chien, Tseng** | **C24106121** |
 | **Sing-Yu, Bao**     | **N46144056** |
 | **Josue Fernandez**  | **P76147051** |
+</div>
 
 ![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue?logo=python)
 
 # 1. Title
 
 **Deep Reinforcement Learning for PM of Repairable Machines in a Flow Line System Simulation Study**
-*A Double Deep Q-Network (DDQN) approach under stochastic machine failures*
 
 ---
 
@@ -149,7 +153,7 @@ Two datasets are generated via simulation, corresponding to the two scenarios.
 All data are generated online during agent–environment interaction. This ensures consistency between training and evaluation conditions and allows fair comparison across scenarios.
 
 <div align="center">
- 
+
 | Dimension     | Scenario A | Scenario B |
 | ------------- | ---------- | ---------- |
 | Machines      | 1          | 4          |
@@ -176,10 +180,10 @@ For each scenario, we track:
 **Comparative Results**
 
 In Scenario A, the DDQN converges quickly and learns a PM policy closely resembling an age-threshold rule, indicating limited marginal benefit of complex decision-making.
-<img width="1336" height="855" alt="圖片" src="https://github.com/user-attachments/assets/4d861efe-b90e-4c29-be17-e8d6ebfa7d81" />
+<img width="1503" height="1018" alt="圖片" src="https://github.com/user-attachments/assets/bb0db56e-0940-41b2-a6cc-e5e78208ad41" />
 
 In Scenario B, the learned policy deviates significantly from pure age-based behavior. PM actions are influenced by buffer occupancy, downstream congestion, and failure risk propagation.
-<img width="1311" height="855" alt="圖片" src="https://github.com/user-attachments/assets/c0295df6-af05-47b0-8ca8-77ad8cd90355" />
+<img width="1476" height="1018" alt="圖片" src="https://github.com/user-attachments/assets/57677447-119e-4cbd-9705-e925f1ab8a40" />
 
 Corrective maintenance frequency is substantially reduced in Scenario B compared to reactive maintenance, despite similar average PM effort.
 
@@ -193,7 +197,7 @@ As system complexity increases, ignoring buffer interactions leads to inefficien
 
 RL-based PM policies are most valuable in environments where maintenance decisions have system-wide ripple effects.
 
-<img width="984" height="583" alt="圖片" src="https://github.com/user-attachments/assets/043311d4-1642-40de-bfa8-bb994906c170" />
+<img width="984" height="583" alt="圖片" src="https://github.com/user-attachments/assets/9855ae3a-6dcf-4831-b2cd-00d170466fc1" />
 
 5. Conclusion
 
@@ -203,22 +207,17 @@ This study demonstrates that preventive maintenance scheduling in repairable flo
 
 # 6. References
 
-Alrabghi, A., & Tiwari, A. (2016). Simulation-based optimisation of maintenance systems. Computers & Industrial Engineering, 82, 167–182.
+Alrabghi, A., & Tiwari, A. (2015). State of the art in simulation-based optimisation for maintenance systems. Computers & Industrial Engineering, 82, 167–182. https://doi.org/10.1016/j.cie.2014.12.022
 
-Cassady, C. R., & Kutanoglu, E. (2005). Integrating preventive maintenance planning and production scheduling. IEEE Transactions on Reliability, 54(2), 304–309.
+Cassady, C. R., & Kutanoglu, E. (2005). Integrating preventive maintenance planning and production scheduling for a single machine. IEEE Transactions on Reliability, 54(2), 304–309. https://doi.org/10.1109/TR.2005.845967
 
 Hung, YH., Shen, HY. & Lee, CY. Deep reinforcement learning-based preventive maintenance for repairable machines with deterioration in a flow line system. Ann Oper Res (2024).https://doi.org/10.1007/s10479-024-06207-x
 
 Jianyu Su, Jing Huang, Stephen Adams, Qing Chang, and Peter A. Beling. 2022. Deep multi-agent reinforcement learning for multi-level preventive maintenance in manufacturing systems▪. Expert Syst. Appl. 192, C (Apr 2022). https://doi.org/10.1016/j.eswa.2021.116323
 
-Li, H., & Meerkov, S. M. (2009). Production Systems Engineering. Springer.
-
 Liu, Y., Wang, W., Hu, Y., Hao, J., Chen, X., & Gao, Y. (2019). Multi-agent game abstraction via graph attention neural network. arXiv preprint arXiv:1911.10715. https://doi.org/10.48550/arXiv.1911.10715
 
-Sutton, R. S., & Barto, A. G. (2018). Reinforcement Learning: An Introduction. MIT Press.
+Sutton, R. S., & Barto, A. G. (2018). Reinforcement learning: An introduction (2nd ed.). The MIT Press.
 
-Van Hasselt, H., Guez, A., & Silver, D. (2016). Deep reinforcement learning with double Q-learning. AAAI Conference on Artificial Intelligence.
-
-Wang, J., & Zhang, H. (2019). Reinforcement learning approaches for preventive maintenance: A review. Computers & Industrial Engineering, 135, 28–41.
-
+van Hasselt, H., Guez, A., & Silver, D. (2016). Deep reinforcement learning with double Q-learning. Proceedings of the AAAI Conference on Artificial Intelligence, 30(1). https://doi.org/10.1609/aaai.v30i1.10295
 
