@@ -203,11 +203,19 @@ To assess learning dynamics, convergence behavior and reward variance across epi
 **Comparative Results**
 
 In Scenario A, characterized by a low-dimensional state space and a linear failure process, the DDQN converges rapidly. The learned preventive maintenance policy closely resembles a simple age-threshold rule, with preventive actions triggered primarily by machine age rather than system-level conditions. This result suggests that in low-complexity environments with minimal machine interactions, sophisticated decision-making provides limited additional benefit over traditional heuristic policies.
+
 <img width="1503" height="1018" alt="圖片" src="https://github.com/user-attachments/assets/bb0db56e-0940-41b2-a6cc-e5e78208ad41" />
+
+In Scenario A, the accumulated rewards (negative costs) over 1000 steps show that the Double DQN, Biweekly, and Run-to-Fail policies generally achieve higher rewards, indicating lower costs, while the Weekly and Monthly strategies tend to incur slightly higher costs. The variability across strategies is relatively similar, although the Monthly policy exhibits slightly larger fluctuations. Some outliers appear in the Double DQN and Biweekly strategies, reflecting occasional extreme low-cost events.
+
 <img width="984" height="583" alt="圖片" src="https://github.com/user-attachments/assets/0292a175-469b-4d8f-b6f7-5d2f7f429cc3" />
 
 In contrast, Scenario B exhibits fundamentally different behavior. Due to the presence of multiple machines, finite buffers, and a Weibull failure process, maintenance decisions have pronounced system-wide effects. The learned policy deviates significantly from a pure age-based strategy. Preventive maintenance actions are influenced not only by machine deterioration but also by buffer occupancy and downstream congestion, reflecting the agent’s ability to anticipate failure propagation and production disruptions.
+
 <img width="1476" height="1018" alt="圖片" src="https://github.com/user-attachments/assets/57677447-119e-4cbd-9705-e925f1ab8a40" />
+
+In Scenario B, the scale of accumulated costs is much larger. The Double DQN policy clearly outperforms the others, with the lowest and most stable costs. Weekly maintenance shows the worst performance, with several extreme high-cost outliers, indicating high variability and potential instability. Biweekly and Monthly strategies perform moderately, while Run-to-Fail yields intermediate costs with moderate stability. These results suggest that Double DQN not only minimizes costs but also provides the most predictable outcomes, whereas frequent scheduled maintenance, particularly Weekly, may lead to unpredictable high-cost events in this scenario.
+
 <img width="984" height="583" alt="圖片" src="https://github.com/user-attachments/assets/9855ae3a-6dcf-4831-b2cd-00d170466fc1" />
 
 Learning convergence in Scenario B is slower and exhibits higher variance, highlighting the increased difficulty of training reinforcement learning agents in high-dimensional and highly stochastic environments.
