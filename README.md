@@ -220,6 +220,24 @@ In Scenario B, the scale of accumulated costs is much larger. The Double DQN pol
 
 Learning convergence in Scenario B is slower and exhibits higher variance, highlighting the increased difficulty of training reinforcement learning agents in high-dimensional and highly stochastic environments.
 
+**Comparison Table** 
+
+<div align="center">
+ 
+| Dimension / Feature         | Scenario A (Simple)        | Scenario B (Complex)                         |
+| --------------------------- | -------------------------- | -------------------------------------------- |
+| Machines                    | 1                          | 4 (2 per stage)                              |
+| Buffers                     | 1                          | 2                                            |
+| Failure Model               | Linear age-dependent       | Weibull (k > 1, aging-induced)               |
+| Machine Interactions        | Minimal / None             | Strong (starvation & blockage propagate)     |
+| PM Strategy Learned         | Age-based (heuristic-like) | System-aware (considers buffer & congestion) |
+| Corrective Maintenance (CM) | Few                        | Reduced compared to heuristic                |
+| Convergence Speed (RL)      | Fast                       | Slower, higher variance                      |
+| Value of RL                 | Low                        | High                                         |
+| Total Cost Impact           | Minimal                    | Significant reduction                        |
+
+</div>
+
 **Managerial Implications**
 
 The results provide several insights for maintenance decision-makers. 
